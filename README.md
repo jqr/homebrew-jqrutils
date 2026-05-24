@@ -4,17 +4,15 @@ Homebrew tap for [jqrutils](https://github.com/jqr/jqrutils).
 
 ## Usage
 
-```
+```sh
 brew tap jqr/jqrutils
 brew install jqrutils
 ```
 
 ## Updating formula after a release
 
-```
-bin/update 0.2.0
-git commit -am 'Update to v0.2.0'
-git push
+```sh
+bin/update 0.0.1
 ```
 
-This downloads the release tarball, computes the SHA256, and updates the formula in place.
+This downloads the release tarball, computes the SHA256, updates the formula, and optionally commits and pushes.

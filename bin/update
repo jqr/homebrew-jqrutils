@@ -49,7 +49,7 @@ echo ""
 read -p "Commit and push update to $TAG? [y/N] " -n 1 -r
 echo ""
 if [[ $REPLY =~ ^[Yy]$ ]]; then
-  git commit -am "Update to $TAG" && git push
+  git commit jqrutils.rb -m "Update to $TAG" && git push
 else
   echo "Aborted. Formula files have been updated but not committed."
 fi
