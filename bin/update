@@ -1,6 +1,11 @@
 #!/bin/bash
 set -euo pipefail
 
+if [ -n "$(git status --porcelain)" ]; then
+  echo "Error: working tree is dirty. Commit or stash changes first."
+  exit 1
+fi
+
 REPO="jqr/jqrutils"
 
 if [ -n "${1:-}" ]; then
