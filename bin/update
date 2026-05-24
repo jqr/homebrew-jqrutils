@@ -30,7 +30,10 @@ TAG="v$VERSION"
 URL="https://github.com/$REPO/archive/refs/tags/$TAG.tar.gz"
 
 echo "Downloading $URL ..."
-SHA=$(curl -sL "$URL" | shasum -a 256 | awk '{print $1}')
+TMPDIR=$(mktemp -d)
+trap 'rm -rf "$TMPDIR"' EXIT
+curl -sL "$URL" -o "$TMPDIR/release.tar.gz"
+SHA=$(shasum -a 256 "$TMPDIR/release.tar.gz" | awk '{print $1}')
 
 if [ "$SHA" = "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855" ]; then
   echo "Error: got empty file SHA. Does the tag exist?"
@@ -45,6 +48,20 @@ for formula in *.rb; do
   sed -i '' "s|archive/refs/tags/v[^\"]*\.tar\.gz|archive/refs/tags/$TAG.tar.gz|" "$formula"
   sed -i '' "s/sha256 \"[^\"]*\"/sha256 \"$SHA\"/" "$formula"
 done
+
+tar -xzf "$TMPDIR/release.tar.gz" -C "$TMPDIR"
+SOURCE_BINS=$(find "$TMPDIR" -path '*/src/bin/*.rs' -exec basename {} .rs \; | sort)
+FORMULA_BINS=$(grep 'bin\.install' jqrutils.rb | sed 's/.*release\///' | sed 's/".*//' | sort)
+
+if [ "$SOURCE_BINS" != "$FORMULA_BINS" ]; then
+  echo "Binary mismatch! Formula needs to be updated manually."
+  echo ""
+  echo "Source binaries:  $SOURCE_BINS"
+  echo "Formula installs: $FORMULA_BINS"
+  echo ""
+  echo "Update jqrutils.rb to match, then re-run."
+  exit 1
+fi
 
 echo ""
 echo "Updated formula:"
